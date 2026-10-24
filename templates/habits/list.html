@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Habits — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1>Habits</h1>
+      <p class="subtitle">Small daily actions that compound into big results.</p>
+    </div>
+    <a href="{% url 'chat' %}" class="btn btn-primary">+ New Habit</a>
+  </div>
+</div>
+
+{% if habits %}
+  <div class="habit-grid">
+    {% for habit in habits %}
+    <div class="card habit-card">
+      <div class="card-title">{{ habit.title }}</div>
+      <div class="habit-meta">
+        {{ habit.get_frequency_display }}
+        {% if habit.goal %} &middot; linked to <strong>{{ habit.goal.title|truncatechars:25 }}</strong>{% endif %}
+      </div>
+
+      {% if habit.current_streak %}
+        <div class="habit-streak">{{ habit.current_streak }} day streak</div>
+      {% endif %}
+
+      <!-- Weekly dots -->
+      <div class="habit-week">
+        {% for day in habit.week_data %}
+          <div class="habit-dot {% if day.completed %}filled{% endif %}"
+               title="{{ day.label }}">
+            {{ day.initial }}
+          </div>
+        {% empty %}
+          {% for i in "MTWTFSS" %}
+            <div class="habit-dot">{{ i }}</div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+
+      <div class="habit-actions">
+        {% if habit.logged_today %}
+          <span class="btn btn-secondary btn-sm" style="pointer-events:none;">Logged</span>
+        {% else %}
+          <button class="btn btn-primary btn-sm" data-habit-log="{{ habit.id }}">Log</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="icon">&#10003;</div>
+      <h3>No habits tracked yet</h3>
+      <p>Habits are created when your mentor builds a plan for your goals, or you can create one manually.</p>
+      <a href="{% url 'chat' %}" class="btn btn-primary">Ask Your Mentor</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

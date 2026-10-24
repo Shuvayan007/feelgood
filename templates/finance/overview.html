@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Finance — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1>Finance</h1>
+      <p class="subtitle">Track spending, build savings, and maintain financial discipline.</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('log-form').hidden = !document.getElementById('log-form').hidden">+ Log Expense</button>
+  </div>
+</div>
+
+<!-- Quick log form (hidden by default) -->
+<div id="log-form" class="card mb-2" hidden>
+  <div class="card-title mb-1">Log a transaction</div>
+  <form method="post" action="{% url 'finance' %}">
+    {% csrf_token %}
+    <div class="grid-2 gap-2">
+      <div class="form-group">
+        <label for="id_amount">Amount</label>
+        <input type="number" id="id_amount" name="amount" class="form-control"
+               step="0.01" min="0" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label for="id_record_type">Type</label>
+        <select id="id_record_type" name="record_type" class="form-control">
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+          <option value="savings">Savings</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="id_description">Description</label>
+        <input type="text" id="id_description" name="description" class="form-control"
+               placeholder="What was this for?">
+      </div>
+      <div class="form-group">
+        <label for="id_recorded_date">Date</label>
+        <input type="date" id="id_recorded_date" name="recorded_date" class="form-control"
+               value="{{ today|date:'Y-m-d' }}">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm mt-1">Save</button>
+  </form>
+</div>
+
+<!-- Summary -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="label">Income (this month)</div>
+    <div class="value" style="color:var(--success);">{{ total_income|default:"—" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Expenses (this month)</div>
+    <div class="value" style="color:var(--danger);">{{ total_expenses|default:"—" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Net Savings</div>
+    <div class="value accent">{{ net_savings|default:"—" }}</div>
+  </div>
+</div>
+
+<!-- Budget adherence -->
+{% if categories %}
+<div class="section">
+  <div class="section-title">Budget by Category</div>
+  {% for cat in categories %}
+  <div class="card mb-1">
+    <div class="flex items-center justify-between mb-1">
+      <span class="fw-600 text-sm">{{ cat.name }}</span>
+      <span class="text-sm text-muted">{{ cat.spent|default:"0" }} / {{ cat.monthly_budget|default:"—" }}</span>
+    </div>
+    {% if cat.monthly_budget %}
+    <div class="progress">
+      <div class="progress-fill" style="width:{{ cat.pct|default:0 }}%;{% if cat.pct > 100 %}background:var(--danger){% endif %}"></div>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Recent transactions -->
+<div class="section">
+  <div class="section-title">Recent Transactions</div>
+  {% if records %}
+  <div class="card">
+    <div class="record-list">
+      {% for record in records %}
+      <div class="record-item">
+        <div>
+          <div class="fw-600 text-sm">{{ record.description|default:"Untitled" }}</div>
+          <div class="text-xs text-muted">{{ record.recorded_date|date:"M j" }} {% if record.category %}&middot; {{ record.category.name }}{% endif %}</div>
+        </div>
+        <div class="record-amount {% if record.record_type == 'income' %}income{% else %}expense{% endif %}">
+          {% if record.record_type == 'income' %}+{% else %}-{% endif %}{{ record.amount }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="icon">&#8377;</div>
+        <h3>No transactions recorded</h3>
+        <p>Start logging your expenses and income to track your financial goals.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Welcome back{% if user.get_full_name %}, {{ user.get_full_name }}{% endif %}</h1>
+  <p class="subtitle">Here's what's happening with your goals.</p>
+</div>
+
+<!-- Summary cards -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="label">Active Goals</div>
+    <div class="value accent">{{ active_goals_count|default:"0" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Habits Today</div>
+    <div class="value">{{ habits_completed|default:"0" }} / {{ habits_total|default:"0" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Weekly Progress</div>
+    <div class="value">{{ weekly_progress|default:"—" }}</div>
+  </div>
+</div>
+
+<!-- Mentor suggestion -->
+{% if mentor_suggestion %}
+<div class="callout mb-3">
+  <div class="callout-title">Your mentor's suggestion</div>
+  <p>{{ mentor_suggestion }}</p>
+</div>
+{% else %}
+<div class="callout mb-3">
+  <div class="callout-title">Your mentor's suggestion</div>
+  <p>Start your day by checking in — <a href="{% url 'chat' %}">open a conversation</a> and share what you're working on today.</p>
+</div>
+{% endif %}
+
+<!-- Active Goals -->
+<div class="section">
+  <div class="section-title">
+    Your Active Goals
+    <a href="{% url 'goals_list' %}" class="btn btn-secondary btn-sm">View All</a>
+  </div>
+
+  {% if goals %}
+    {% for goal in goals %}
+    <a href="{% url 'goal_detail' goal.pk %}" class="card card-link goal-card mb-1">
+      <div class="goal-header">
+        <div class="card-title">{{ goal.title }}</div>
+        <span class="badge badge-accent">{{ goal.category }}</span>
+      </div>
+      <div class="goal-progress">
+        <div class="progress-label">
+          <span>Progress</span>
+          <span>{{ goal.progress_pct }}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" style="--progress: {{ goal.progress_pct }}%;"></div>
+        </div>
+      </div>
+      <div class="goal-meta">
+        {% if goal.target_date %}<span>Due {{ goal.target_date }}</span>{% endif %}
+        <span>{{ goal.get_time_horizon_display }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="icon">&#9873;</div>
+        <h3>No goals yet</h3>
+        <p>Chat with your mentor to set your first goal and build a plan.</p>
+        <a href="{% url 'chat' %}" class="btn btn-primary">Start a Conversation</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Today's Actions -->
+<div class="section">
+  <div class="section-title">Today's Actions</div>
+  {% if actions %}
+    {% for action in actions %}
+    <div class="card mb-1">
+      <div class="flex items-center gap-1">
+        <span class="text-muted">&#9744;</span>
+        <span>{{ action.title }}</span>
+        {% if action.milestone %}
+          <span class="badge badge-muted">{{ action.milestone.goal.title|truncatechars:20 }}</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted text-sm">No pending actions for today. Check in with your mentor to plan your day.</p>
+  {% endif %}
+</div>
+{% endblock %}

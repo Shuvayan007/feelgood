@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}{{ goal.title }} — Feel Good{% endblock %}
+
+{% block content %}
+<a href="{% url 'goals_list' %}" class="back-link">&larr; Back to goals</a>
+
+<div class="goal-detail-header">
+  <div class="flex items-center gap-1 mb-1">
+    {% if goal.status == 'active' %}
+      <span class="badge badge-accent">Active</span>
+    {% elif goal.status == 'completed' %}
+      <span class="badge badge-success">Completed</span>
+    {% elif goal.status == 'paused' %}
+      <span class="badge badge-secondary">Paused</span>
+    {% elif goal.status == 'draft' %}
+      <span class="badge badge-muted">Draft</span>
+    {% else %}
+      <span class="badge badge-danger">{{ goal.get_status_display }}</span>
+    {% endif %}
+
+    {% if goal.category == 'career' %}
+      <span class="badge badge-accent">Career</span>
+    {% elif goal.category == 'fitness' %}
+      <span class="badge badge-success">Fitness</span>
+    {% elif goal.category == 'finance' %}
+      <span class="badge badge-secondary">Finance</span>
+    {% else %}
+      <span class="badge badge-muted">{{ goal.get_category_display }}</span>
+    {% endif %}
+  </div>
+  <h1>{{ goal.title }}</h1>
+  {% if goal.description %}
+    <p class="text-muted mt-1">{{ goal.description }}</p>
+  {% endif %}
+</div>
+
+<!-- Progress -->
+<div class="card mb-2">
+  <div class="progress-label mb-1">
+    <span class="fw-600">Overall Progress</span>
+    <span class="fw-600">{{ goal.progress_pct }}%</span>
+  </div>
+  <div class="progress progress-lg">
+    <div class="progress-fill" style="width:{{ goal.progress_pct }}%"></div>
+  </div>
+</div>
+
+<!-- Info row -->
+<div class="goal-info-row mb-2">
+  {% if goal.target_date %}
+  <div class="goal-info-item">
+    <div class="label">Target Date</div>
+    <div class="value">{{ goal.target_date|date:"F j, Y" }}</div>
+  </div>
+  {% endif %}
+  <div class="goal-info-item">
+    <div class="label">Time Horizon</div>
+    <div class="value">{{ goal.get_time_horizon_display }}</div>
+  </div>
+  {% if goal.weekly_time_budget_hours %}
+  <div class="goal-info-item">
+    <div class="label">Weekly Budget</div>
+    <div class="value">{{ goal.weekly_time_budget_hours }} hours</div>
+  </div>
+  {% endif %}
+  <div class="goal-info-item">
+    <div class="label">Created</div>
+    <div class="value">{{ goal.created_at|date:"M j, Y" }}</div>
+  </div>
+</div>
+
+<!-- Success criteria -->
+{% if goal.success_criteria %}
+<div class="section">
+  <div class="section-title">Success Criteria</div>
+  <div class="card">
+    <ul style="padding-left:1.25rem;margin:0;">
+      {% for criterion in goal.success_criteria %}
+        <li class="text-sm" style="margin-bottom:0.25rem;">{{ criterion }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<!-- Milestones -->
+<div class="section">
+  <div class="section-title">Milestones</div>
+
+  {% if milestones %}
+    <div class="milestone-list">
+      {% for milestone in milestones %}
+      <div class="milestone-item {% if milestone.status == 'completed' %}completed{% endif %}">
+        <div class="milestone-title">
+          {% if milestone.status == 'completed' %}
+            <span class="text-accent">&#10003;</span>
+          {% else %}
+            <span class="text-muted">&#9675;</span>
+          {% endif %}
+          {{ milestone.title }}
+          {% if milestone.target_date %}
+            <span class="text-xs text-muted" style="margin-left:auto;">{{ milestone.target_date|date:"M j" }}</span>
+          {% endif %}
+        </div>
+
+        {% if milestone.actions.all %}
+        <ul class="action-list">
+          {% for action in milestone.actions.all %}
+          <li>
+            {% if action.status == 'completed' %}
+              <span class="check">&#10003;</span>
+            {% else %}
+              <span class="text-dim">&#9744;</span>
+            {% endif %}
+            {{ action.title }}
+            {% if action.due_date %}
+              <span class="text-xs text-dim" style="margin-left:0.5rem;">{{ action.due_date|date:"M j" }}</span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card">
+      <p class="text-sm text-muted">No milestones defined yet. Ask your mentor to break this goal into milestones.</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Actions -->
+<div class="mt-2 flex gap-1">
+  <a href="{% url 'chat' %}" class="btn btn-secondary">Revise Plan with Mentor</a>
+</div>
+{% endblock %}

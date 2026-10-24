@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Feel Good — Your AI Personal Mentor{% endblock %}
+
+{% block content %}
+<div class="landing">
+  <header class="landing-header">
+    <div class="landing-logo">&#9672; Feel Good</div>
+    <div class="flex gap-1">
+      <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </header>
+
+  <div class="landing-hero">
+    <h1>Your AI Personal Mentor</h1>
+    <p class="tagline">
+      Tell Feel Good where you want to go. It helps you figure out how to get there,
+      one achievable step at a time.
+    </p>
+    <div class="landing-cta">
+      <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
+      <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+    </div>
+  </div>
+
+  <div class="landing-features">
+    <div class="feature-card card">
+      <div class="feature-icon">&#9873;</div>
+      <h3>AI Goal Planning</h3>
+      <p>Define ambitious goals in your own words. Your mentor turns them into structured, achievable plans with milestones and daily actions.</p>
+    </div>
+    <div class="feature-card card">
+      <div class="feature-icon">&#9993;</div>
+      <h3>Daily Mentoring</h3>
+      <p>Check in every day. Your mentor reviews your progress, identifies obstacles, and suggests what to focus on next.</p>
+    </div>
+    <div class="feature-card card">
+      <div class="feature-icon">&#10003;</div>
+      <h3>Track Everything</h3>
+      <p>Habits, fitness, finances, and learning — all connected to your goals. One place, one plan, one mentor.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

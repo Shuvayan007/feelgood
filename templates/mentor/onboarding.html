@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Onboarding — Feel Good{% endblock %}
+
+{% block content %}
+<div style="max-width:560px;margin:2rem auto;text-align:center;">
+  <div class="card" style="padding:2.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">&#9672;</div>
+    <h1 style="font-size:1.5rem;margin-bottom:0.5rem;">Let's get to know you</h1>
+    <p class="text-muted mb-3">
+      Before we set your goals, your mentor would like to understand what a better life looks like for you.
+      This is a short conversation — you can skip anything and come back later.
+    </p>
+
+    <div class="card mb-2" style="text-align:left;background:var(--bg);">
+      <p class="text-sm mb-1"><strong>What happens next:</strong></p>
+      <ul style="padding-left:1.25rem;margin:0;font-size:0.875rem;color:var(--text-muted);">
+        <li>You'll chat with your mentor about your circumstances, goals, and preferences</li>
+        <li>The mentor builds a structured profile from your answers</li>
+        <li>You can update any detail at any time from your profile page</li>
+      </ul>
+    </div>
+
+    <a href="{% url 'chat' %}" class="btn btn-primary" style="width:100%;justify-content:center;">
+      Start Conversation
+    </a>
+
+    <div class="mt-2">
+      <a href="{% url 'dashboard' %}" class="text-sm text-muted">Skip for now</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Profile — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Your Profile</h1>
+  <p class="subtitle">Manage your personal information and preferences.</p>
+</div>
+
+<!-- Profile overview -->
+<div class="section">
+  <div class="section-title">
+    Personal Information
+    {% if profile and profile.onboarding_completed %}
+      <span class="badge badge-success">Onboarding complete</span>
+    {% else %}
+      <span class="badge badge-secondary">
+        <a href="{% url 'onboarding' %}" style="color:inherit;text-decoration:none;">Complete onboarding</a>
+      </span>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <form method="post" action="{% url 'profile' %}">
+      {% csrf_token %}
+      <div class="grid-2 gap-2">
+        <div class="form-group">
+          <label for="id_display_name">Display name</label>
+          <input type="text" id="id_display_name" name="display_name" class="form-control"
+                 value="{{ profile.display_name|default:'' }}"
+                 placeholder="How should the mentor address you?">
+        </div>
+        <div class="form-group">
+          <label for="id_email">Email</label>
+          <input type="email" id="id_email" class="form-control"
+                 value="{{ user.email }}" disabled>
+        </div>
+        <div class="form-group">
+          <label for="id_age_range">Age range</label>
+          <select id="id_age_range" name="age_range" class="form-control">
+            <option value="">— Select —</option>
+            <option value="18-24" {% if profile.age_range == '18-24' %}selected{% endif %}>18–24</option>
+            <option value="25-34" {% if profile.age_range == '25-34' %}selected{% endif %}>25–34</option>
+            <option value="35-44" {% if profile.age_range == '35-44' %}selected{% endif %}>35–44</option>
+            <option value="45-54" {% if profile.age_range == '45-54' %}selected{% endif %}>45–54</option>
+            <option value="55+" {% if profile.age_range == '55+' %}selected{% endif %}>55+</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="id_timezone">Timezone</label>
+          <input type="text" id="id_timezone" name="timezone" class="form-control"
+                 value="{{ profile.timezone|default:'UTC' }}"
+                 placeholder="e.g. Asia/Kolkata">
+        </div>
+        <div class="form-group">
+          <label for="id_available_hours">Available hours per week</label>
+          <input type="number" id="id_available_hours" name="available_hours_per_week"
+                 class="form-control" step="0.5" min="0" max="168"
+                 value="{{ profile.available_hours_per_week|default:'' }}"
+                 placeholder="How many hours can you dedicate?">
+        </div>
+        <div class="form-group">
+          <label for="id_schedule_type">Schedule type</label>
+          <select id="id_schedule_type" name="schedule_type" class="form-control">
+            <option value="">— Select —</option>
+            <option value="fixed" {% if profile.schedule_type == 'fixed' %}selected{% endif %}>Fixed schedule</option>
+            <option value="flexible" {% if profile.schedule_type == 'flexible' %}selected{% endif %}>Flexible</option>
+            <option value="shift" {% if profile.schedule_type == 'shift' %}selected{% endif %}>Shift work</option>
+            <option value="freelance" {% if profile.schedule_type == 'freelance' %}selected{% endif %}>Freelance / variable</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-2">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Privacy -->
+<div class="section">
+  <div class="section-title">Privacy Settings</div>
+  <div class="card">
+    <p class="text-sm text-muted mb-1">
+      Control what data the mentor can access. These settings affect how personalized your experience is.
+    </p>
+    <p class="text-sm text-muted">
+      Privacy controls will be available in a future update. All your data is stored securely and never shared.
+    </p>
+  </div>
+</div>
+{% endblock %}

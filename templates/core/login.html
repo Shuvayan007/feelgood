@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign In — Feel Good{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-card">
+    <div class="logo">&#9672; Feel Good</div>
+    <h2>Welcome back</h2>
+    <p class="auth-subtitle">Sign in to continue to your dashboard.</p>
+
+    {% if form.errors %}
+    <div class="alert alert-error mb-2">
+      <span>Invalid email or password. Please try again.</span>
+      <button class="dismiss">&times;</button>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-error mb-2">
+      <span>{{ error }}</span>
+      <button class="dismiss">&times;</button>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_email">Email</label>
+        <input type="email" id="id_email" name="email" class="form-control"
+               placeholder="you@example.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="id_password">Password</label>
+        <input type="password" id="id_password" name="password" class="form-control"
+               placeholder="Your password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="{% url 'register' %}">Sign up</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Chat — Feel Good{% endblock %}
+
+{% block content %}
+<input type="hidden" id="conversation-id" value="{{ conversation.id|default:'' }}">
+
+<div class="page-header mb-2">
+  <h1>Mentor Chat</h1>
+</div>
+
+<div class="chat-layout">
+  <!-- Conversation list -->
+  <div class="chat-sidebar">
+    <h3>Conversations</h3>
+    <a href="{% url 'chat' %}" class="conv-item {% if not conversation %}active{% endif %}">
+      + New conversation
+    </a>
+    {% for conv in conversations %}
+      <a href="{% url 'chat_conversation' conv.id %}"
+         class="conv-item {% if conversation and conversation.id == conv.id %}active{% endif %}">
+        <span class="badge badge-muted" style="margin-right:0.25rem;">{{ conv.get_purpose_display }}</span>
+        {{ conv.summary|default:"Untitled"|truncatechars:30 }}
+        <span class="conv-date">{{ conv.last_message_at|date:"M j, g:i A" }}</span>
+      </a>
+    {% empty %}
+      <p class="text-sm text-muted" style="padding:0.5rem 0.625rem;">No conversations yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Chat area -->
+  <div class="chat-area">
+    {% if conversation %}
+      <div class="chat-messages" id="chat-messages">
+        {% for msg in messages %}
+          <div class="msg {% if msg.role == 'user' %}msg-user{% else %}msg-assistant{% endif %}">
+            {{ msg.content }}
+            <div class="msg-time">{{ msg.created_at|date:"g:i A" }}</div>
+          </div>
+        {% empty %}
+          <div class="msg msg-assistant">
+            Hello! I'm your Feel Good mentor. What would you like to work on today?
+          </div>
+        {% endfor %}
+      </div>
+
+      <form class="chat-input" id="chat-form">
+        <input type="text" id="chat-input" placeholder="Type your message..."
+               autocomplete="off" required>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+
+    {% else %}
+      <div class="chat-empty">
+        <div class="icon">&#9993;</div>
+        <h3>Start a conversation with your mentor</h3>
+        <p class="text-muted">Ask a question, set a goal, or check in on your progress.</p>
+      </div>
+
+      <form class="chat-input" id="chat-form">
+        <input type="text" id="chat-input" placeholder="Type your message to start..."
+               autocomplete="off" required>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

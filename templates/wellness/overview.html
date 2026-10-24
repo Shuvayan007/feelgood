@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Wellness — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1>Wellness</h1>
+      <p class="subtitle">Workouts, measurements, nutrition, and sleep — all in one place.</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('log-form').hidden = !document.getElementById('log-form').hidden">+ Log Activity</button>
+  </div>
+</div>
+
+<!-- Quick log form -->
+<div id="log-form" class="card mb-2" hidden>
+  <div class="card-title mb-1">Log wellness record</div>
+  <form method="post" action="{% url 'wellness' %}">
+    {% csrf_token %}
+    <div class="grid-2 gap-2">
+      <div class="form-group">
+        <label for="id_record_type">Type</label>
+        <select id="id_record_type" name="record_type" class="form-control">
+          <option value="workout">Workout</option>
+          <option value="measurement">Measurement</option>
+          <option value="nutrition">Nutrition</option>
+          <option value="sleep">Sleep</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="id_recorded_date">Date</label>
+        <input type="date" id="id_recorded_date" name="recorded_date" class="form-control"
+               value="{{ today|date:'Y-m-d' }}">
+      </div>
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label for="id_notes">Notes</label>
+        <textarea id="id_notes" name="notes" class="form-control"
+                  placeholder="Describe your activity..."></textarea>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm mt-1">Save</button>
+  </form>
+</div>
+
+<!-- Summary -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="label">Workouts this week</div>
+    <div class="value accent">{{ workouts_this_week|default:"0" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Last measurement</div>
+    <div class="value">{{ last_measurement|default:"—" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Avg. sleep</div>
+    <div class="value">{{ avg_sleep|default:"—" }}</div>
+  </div>
+</div>
+
+<!-- Recent records -->
+<div class="section">
+  <div class="section-title">Recent Activity</div>
+  {% if records %}
+    {% for record in records %}
+    <div class="card mb-1">
+      <div class="flex items-center gap-1 mb-1">
+        {% if record.record_type == 'workout' %}
+          <span class="badge badge-accent">Workout</span>
+        {% elif record.record_type == 'measurement' %}
+          <span class="badge badge-secondary">Measurement</span>
+        {% elif record.record_type == 'nutrition' %}
+          <span class="badge badge-success">Nutrition</span>
+        {% elif record.record_type == 'sleep' %}
+          <span class="badge badge-tertiary">Sleep</span>
+        {% endif %}
+        <span class="text-sm text-muted">{{ record.recorded_date|date:"M j, Y" }}</span>
+      </div>
+      {% if record.notes %}
+        <p class="text-sm">{{ record.notes }}</p>
+      {% endif %}
+      {% if record.data %}
+        <div class="text-xs text-muted mt-1">
+          {% for key, value in record.data.items %}
+            {{ key }}: {{ value }}{% if not forloop.last %} &middot; {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="icon">&#9829;</div>
+        <h3>No wellness records yet</h3>
+        <p>Log your workouts, measurements, nutrition, and sleep to track trends over time.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Goals — Feel Good{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1>Your Goals</h1>
+      <p class="subtitle">Track your ambitions from aspiration to achievement.</p>
+    </div>
+    <a href="{% url 'chat' %}" class="btn btn-primary">+ New Goal</a>
+  </div>
+</div>
+
+{% if goals %}
+  <!-- Active goals -->
+  {% if active_goals %}
+  <div class="section">
+    <div class="section-title">Active</div>
+    {% for goal in active_goals %}
+    <a href="{% url 'goal_detail' goal.pk %}" class="card card-link goal-card mb-1">
+      <div class="goal-header">
+        <div class="card-title">{{ goal.title }}</div>
+        {% if goal.category == 'career' %}
+          <span class="badge badge-accent">Career</span>
+        {% elif goal.category == 'fitness' %}
+          <span class="badge badge-success">Fitness</span>
+        {% elif goal.category == 'finance' %}
+          <span class="badge badge-secondary">Finance</span>
+        {% elif goal.category == 'lifestyle' %}
+          <span class="badge badge-tertiary">Lifestyle</span>
+        {% else %}
+          <span class="badge badge-muted">{{ goal.get_category_display }}</span>
+        {% endif %}
+      </div>
+      {% if goal.description %}
+        <p class="text-sm text-muted mb-1">{{ goal.description|truncatechars:120 }}</p>
+      {% endif %}
+      <div class="goal-progress">
+        <div class="progress-label">
+          <span>Progress</span>
+          <span>{{ goal.progress_pct }}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" style="width:{{ goal.progress_pct }}%"></div>
+        </div>
+      </div>
+      <div class="goal-meta">
+        <span>{{ goal.get_time_horizon_display }}</span>
+        {% if goal.target_date %}<span>Due {{ goal.target_date|date:"M j, Y" }}</span>{% endif %}
+        {% if goal.weekly_time_budget_hours %}<span>{{ goal.weekly_time_budget_hours }}h/week</span>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Draft goals -->
+  {% if draft_goals %}
+  <div class="section">
+    <div class="section-title">Drafts</div>
+    {% for goal in draft_goals %}
+    <a href="{% url 'goal_detail' goal.pk %}" class="card card-link goal-card mb-1">
+      <div class="goal-header">
+        <div class="card-title">{{ goal.title }}</div>
+        <span class="badge badge-muted">Draft</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Completed goals -->
+  {% if completed_goals %}
+  <div class="section">
+    <div class="section-title">Completed</div>
+    {% for goal in completed_goals %}
+    <a href="{% url 'goal_detail' goal.pk %}" class="card card-link goal-card mb-1" style="opacity:0.7;">
+      <div class="goal-header">
+        <div class="card-title">{{ goal.title }}</div>
+        <span class="badge badge-success">Completed</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+{% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="icon">&#9873;</div>
+      <h3>No goals yet</h3>
+      <p>Chat with your mentor to define meaningful goals and build a plan to achieve them.</p>
+      <a href="{% url 'chat' %}" class="btn btn-primary">Talk to Your Mentor</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
