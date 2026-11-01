@@ -77,6 +77,10 @@
 
   function appendMessage(role, content) {
     if (!chatMessages) return;
+
+    var empty = document.getElementById('chat-empty');
+    if (empty) empty.remove();
+  
     var div = document.createElement('div');
     div.className = 'msg ' + (role === 'user' ? 'msg-user' : 'msg-assistant');
     div.textContent = content;
@@ -105,10 +109,33 @@
       })
         .then(function (res) { return res.json(); })
         .then(function (data) {
+          console.log('Chat API Response:', JSON.stringify(data, null, 2)); // Debugging output
+
           if (data.conversation_id) {
             conversationId = data.conversation_id;
+
+            window.history.replaceState(null, '', '/chat/' + conversationId + '/');
           }
-          appendMessage('assistant', data.content || data.message || 'I received your message.');
+
+          // appendMessage('assistant', data.content || data.message || 'I received your message.');
+
+          // var reply = (data.message && data.message.content) || data.content || 'I received your message.';
+
+          var reply;
+          if (data.message && typeof data.message === 'object' && typeof data.message.content === 'string') {
+            reply = data.message.content;
+          } else if (typeof data.content === 'string') {
+            reply = data.message.content;
+          } else if (data.message && typeof data.message === 'object' && typeof data.message.content === 'string') {
+            reply = data.message.content;
+          } else if (typeof data.message === 'string') {
+            reply = data.response;
+          } else if (typeof data.content === 'string') {
+            reply = data.content;
+          } else {
+            reply = 'I received your message.';
+          }
+          appendMessage('assistant', reply);
         })
         .catch(function () {
           appendMessage('assistant', 'Something went wrong. Please try again.');

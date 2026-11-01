@@ -3,6 +3,7 @@ from django.conf import settings
 from .models import Conversation, Message
 from .tools import MENTOR_TOOLS
 
+from openai import AzureOpenAI, OpenAI
 
 class MentorOrchestrator:
     """Central intelligence layer that coordinates user interactions with the LLM."""
@@ -113,13 +114,46 @@ class MentorOrchestrator:
                 tools=[t for t in tools] if tools else None,
             )
         """
+
+        # client = AzureOpenAI(
+        #     azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        #     api_key=settings.AZURE_OPENAI_API_KEY,
+        #     api_version=settings.AZURE_OPENAI_API_VERSION,
+        # )
+
+        # # Temporary debug prints inside _call_llm:
+        # print(f"--- DEBUG ENDPOINT VALUE: {repr(settings.AZURE_OPENAI_ENDPOINT)} ---")
+        # print(f"--- DEBUG API KEY VALUE: {repr(settings.AZURE_OPENAI_API_KEY)} ---")
+
+        client = OpenAI(
+            base_url=settings.AZURE_OPENAI_ENDPOINT,
+            api_key=settings.AZURE_OPENAI_API_KEY,
+        )
+        
+        response = client.chat.completions.create(
+            model=settings.AZURE_OPENAI_DEPLOYMENT,
+            messages=messages,
+            tools=[t for t in tools] if tools else None,
+        )
+
+        print("LLM Response:", response)  # Debugging output
+        # return {
+        #     "content": (
+        #         "I'd love to help you with that. To create the best plan, "
+        #         "could you tell me a bit more about your current situation "
+        #         "and what you'd like to achieve?"
+        #     ),
+        #     "tool_calls": [],
+        # }
+        message = response.choices[0].message
+
+        print("LLM Message Content:", message.content)  # Debugging output
+        print("LLM Message Tool Calls:", message.tool_calls)  # Debugging output
+
+        # 2. Map and return the values dynamically
         return {
-            "content": (
-                "I'd love to help you with that. To create the best plan, "
-                "could you tell me a bit more about your current situation "
-                "and what you'd like to achieve?"
-            ),
-            "tool_calls": [],
+            "content": message.content,
+            "tool_calls": message.tool_calls if message.tool_calls else [],
         }
 
     def _validate_response(self, response):

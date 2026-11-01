@@ -29,8 +29,8 @@
 
   <!-- Chat area -->
   <div class="chat-area">
-    {% if conversation %}
-      <div class="chat-messages" id="chat-messages">
+    <div class="chat-messages" id="chat-messages"></div>
+      {% if conversation %}
         {% for msg in messages %}
           <div class="msg {% if msg.role == 'user' %}msg-user{% else %}msg-assistant{% endif %}">
             {{ msg.content }}
@@ -41,7 +41,7 @@
             Hello! I'm your Feel Good mentor. What would you like to work on today?
           </div>
         {% endfor %}
-      </div>
+    </div>
 
       <form class="chat-input" id="chat-form">
         <input type="text" id="chat-input" placeholder="Type your message..."

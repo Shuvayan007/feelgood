@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from .models import Conversation, Message, Proposal
 from .serializers import ConversationSerializer, MessageSerializer, ProposalSerializer
 
+from .orchestrator import MentorOrchestrator
 
 # ── API Views ────────────────────────────────────────────────────
 
@@ -40,11 +41,19 @@ class ChatView(APIView):
         )
 
         # Stub: return a canned mentor response
-        mentor_reply = (
-            "Thank you for sharing that. I'm here to help you turn your goals "
-            "into actionable steps. Could you tell me more about what you'd like "
-            "to work on?"
-        )
+        # mentor_reply = (
+        #     "Thank you for sharing that. I'm here to help you turn your goals "
+        #     "into actionable steps. Could you tell me more about what you'd like "
+        #     "to work on?"
+        # )
+
+        orchestrator = MentorOrchestrator(user=request.user)
+        result = orchestrator.process_message(
+            message = content,
+            conversation_id = conversation.id
+            )
+        mentor_reply = result["response"]
+
         assistant_msg = Message.objects.create(
             conversation=conversation,
             role=Message.Role.ASSISTANT,
@@ -159,7 +168,7 @@ def chat_view(request, conversation_id=None):
 
     return render(request, 'mentor/chat.html', {
         'conversations': conversations,
-        'current_conversation': current_conversation,
+        'conversation': current_conversation,
         'messages': messages,
     })
 
