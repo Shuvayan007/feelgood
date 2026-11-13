@@ -148,6 +148,42 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
+  // ── Delete conversation from history ────────────────────────
+  var convEmpty = document.getElementById('conv-empty');
+
+  document.querySelectorAll('[data-delete-conversation]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-delete-conversation');
+      if (!window.confirm('Delete this conversation? This cannot be undone.')) return;
+
+      btn.disabled = true;
+      fetch('/api/mentor/conversations/' + id + '/', {
+        method: 'DELETE',
+        headers: apiHeaders(),
+      })
+        .then(function (res) {
+          // 404 means it is already gone, so the row should disappear either way
+          if (!res.ok && res.status !== 404) throw new Error('Delete failed');
+
+          if (String(conversationId) === id) {
+            window.location.href = '/chat/';
+            return;
+          }
+
+          var row = btn.closest('.conv-row');
+          var list = row.parentNode;
+          row.remove();
+          if (convEmpty && !list.querySelector('.conv-row')) {
+            convEmpty.hidden = false;
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          window.alert('Could not delete the conversation. Please try again.');
+        });
+    });
+  });
+
   // ── Habit log toggle ────────────────────────────────────────
   document.querySelectorAll('[data-habit-log]').forEach(function (btn) {
     btn.addEventListener('click', function () {

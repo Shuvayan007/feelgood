@@ -136,7 +136,7 @@ class MentorOrchestrator:
             tools=[t for t in tools] if tools else None,
         )
 
-        print("LLM Response:", response)  # Debugging output
+        # print("LLM Response:", response)  # Debugging output
         # return {
         #     "content": (
         #         "I'd love to help you with that. To create the best plan, "
@@ -147,8 +147,8 @@ class MentorOrchestrator:
         # }
         message = response.choices[0].message
 
-        print("LLM Message Content:", message.content)  # Debugging output
-        print("LLM Message Tool Calls:", message.tool_calls)  # Debugging output
+        # print("LLM Message Content:", message.content)  # Debugging output
+        # print("LLM Message Tool Calls:", message.tool_calls)  # Debugging output
 
         # 2. Map and return the values dynamically
         return {

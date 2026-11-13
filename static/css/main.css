@@ -486,6 +486,7 @@ td {
   border-right: 1px solid var(--border);
   padding-right: 1rem;
   overflow-y: auto;
+  max-height: calc(100vh - 8rem);
 }
 .chat-sidebar h3 {
   font-size: 0.75rem;
@@ -512,6 +513,37 @@ td {
   display: block;
   margin-top: 0.1rem;
 }
+.conv-row {
+  position: relative;
+  margin-bottom: 2px;
+}
+.conv-row .conv-item {
+  margin-bottom: 0;
+  padding-right: 2.5rem;
+}
+.conv-delete {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.conv-delete:hover,
+.conv-delete:focus-visible {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.conv-delete:disabled { opacity: 0.5; cursor: progress; }
 
 .chat-area {
   display: flex;

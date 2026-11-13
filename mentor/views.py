@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -39,6 +39,9 @@ class ChatView(APIView):
         Message.objects.create(
             conversation=conversation, role=Message.Role.USER, content=content
         )
+        # auto_now only refreshes last_message_at on save(), which keeps the
+        # conversation history ordered by latest activity.
+        conversation.save(update_fields=['last_message_at'])
 
         # Stub: return a canned mentor response
         # mentor_reply = (
@@ -59,6 +62,7 @@ class ChatView(APIView):
             role=Message.Role.ASSISTANT,
             content=mentor_reply,
         )
+        conversation.save(update_fields=['last_message_at'])
 
         return Response({
             'conversation_id': conversation.id,
@@ -91,6 +95,14 @@ class CheckInView(APIView):
 class ConversationListView(ListAPIView):
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Conversation.objects.filter(user=self.request.user)
+
+
+class ConversationDeleteView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = 'conversation_id'
 
     def get_queryset(self):
         return Conversation.objects.filter(user=self.request.user)
@@ -157,19 +169,21 @@ class ProposalRejectView(APIView):
 @login_required
 def chat_view(request, conversation_id=None):
     conversations = Conversation.objects.filter(user=request.user).order_by('-last_message_at')
-    messages = []
+    chat_messages = []
     current_conversation = None
 
     if conversation_id:
         current_conversation = get_object_or_404(
             Conversation, id=conversation_id, user=request.user
         )
-        messages = current_conversation.messages.all()
+        chat_messages = current_conversation.messages.order_by('created_at', 'id')
 
+    # Not named "messages": that would shadow Django's messages framework,
+    # which base.html renders as alert banners.
     return render(request, 'mentor/chat.html', {
         'conversations': conversations,
         'conversation': current_conversation,
-        'messages': messages,
+        'chat_messages': chat_messages,
     })
 
 

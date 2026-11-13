@@ -6,6 +6,11 @@ urlpatterns = [
     path('check-in/', views.CheckInView.as_view(), name='api_check_in'),
     path('conversations/', views.ConversationListView.as_view(), name='api_conversations'),
     path(
+        'conversations/<int:conversation_id>/',
+        views.ConversationDeleteView.as_view(),
+        name='api_conversation_delete',
+    ),
+    path(
         'conversations/<int:conversation_id>/messages/',
         views.ConversationMessageView.as_view(),
         name='api_conversation_messages',
